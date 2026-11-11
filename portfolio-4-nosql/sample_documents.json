@@ -1,0 +1,48 @@
+[
+  {
+    "event_id": "EVT-20261005-0003",
+    "customer_id": 5,
+    "wallet_id": 5,
+    "tx_reference": "OP-TRF-20261005-9999",
+    "channel": "web",
+    "amount_ngn": 480000.00,
+    "device_context": {
+      "os": "Linux x86_64",
+      "browser": "HeadlessChrome/129.0",
+      "device_fingerprint": "dfp_unknown_tor_8821",
+      "vpn_or_proxy_detected": true,
+      "new_device_login": true
+    },
+    "network_geo": {
+      "ip_address": "185.220.101.45",
+      "isp": "Tor Exit Node Network",
+      "city": "Frankfurt",
+      "country_code": "NG_TO_DE_ANOMALY",
+      "impossible_travel_detected": true,
+      "minutes_since_last_lagos_login": 9
+    },
+    "risk_assessment": {
+      "risk_score": 94,
+      "decision": "BLOCK_AND_FREEZE",
+      "evaluation_time_ms": 14,
+      "triggered_rules": [
+        {
+          "rule_code": "IMPOSSIBLE_TRAVEL",
+          "weight": 45,
+          "description": "Login from Germany 9 mins after Lagos session"
+        },
+        {
+          "rule_code": "TOR_PROXY_DETECTED",
+          "weight": 30,
+          "description": "Request originated from anonymizing proxy"
+        },
+        {
+          "rule_code": "NEW_DEVICE_HIGH_TX",
+          "weight": 25,
+          "description": "Unrecognized device attempting > 250k NGN transfer"
+        }
+      ]
+    },
+    "created_at": "2026-10-05T02:18:30Z"
+  }
+]
