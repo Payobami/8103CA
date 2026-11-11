@@ -21,7 +21,7 @@
 5. **Core Banking API & Background Workers (Laravel Queue/Services):** Execute atomic wallet debits/credits, enforce concurrency locks, and replicate read traffic.
 
 ### **Major Data Stored:**
-* **Relational Data (MySQL 8.0):**
+* **Relational Data (MySQL 8.0 — `ovalpay_db`):**
   * `kyc_tiers` — Regulatory KYC levels (Tier 1, Tier 2, Tier 3) defining maximum account balances and daily transfer limits.
   * `customers` — Verified customer profiles, contact information, BVN/identity numbers, and KYC status.
   * `wallets` — Multi-currency digital accounts storing available balances, locked balances, account numbers, and optimistic lock versions.
@@ -29,8 +29,8 @@
   * `beneficiaries` — Saved recipient bank accounts linked to customers.
   * `transactions` — Immutable financial ledger recording every credit, debit, fee, `balance_before`, and `balance_after`.
   * `wallet_transfers` — Atomic peer-to-peer transfer records linking sender and receiver wallets with their corresponding debit and credit ledger entries.
-* **NoSQL Data (MongoDB):**
-  * `transaction_audit_events` — High-velocity, schema-flexible event logs storing device fingerprints, IP geolocation, 3DS/biometric challenges, and raw third-party payment gateway webhook payloads.
+* **NoSQL Data (MongoDB 7.0 — `ovalpay_nosql`):**
+  * `fraud_telemetry_events` & `gateway_webhook_logs` — High-velocity, schema-flexible event logs storing device fingerprints, IP geolocation, 3DS/biometric challenges, and raw third-party payment gateway webhook payloads.
 
 ### **Key Operations Supported:**
 * Opening customer wallets and enforcing regulatory KYC tier balance/transfer limits.
@@ -57,8 +57,9 @@
 | Component | Activity | Directory Link | Status |
 | :--- | :--- | :--- | :--- |
 | **Portfolio 1** | Database Design and Modelling | [`./portfolio-1-database-design/`](./portfolio-1-database-design/) | Completed |
-| **Portfolio 2** | Query Processing and Optimisation | [`./portfolio-2-query-optimisation/`](./portfolio-2-query-optimisation/) | Pending |
-| **Portfolio 3** | Transactions and Concurrency | [`./portfolio-3-transactions-concurrency/`](./portfolio-3-transactions-concurrency/) | Pending |
-| **Portfolio 4** | NoSQL and Advanced Data Models | [`./portfolio-4-nosql/`](./portfolio-4-nosql/) | Pending |
-| **Portfolio 5** | Distributed and Cloud Database Exercise | [`./portfolio-5-distributed-cloud/`](./portfolio-5-distributed-cloud/) | Pending |
+| **Portfolio 2** | Query Processing and Optimisation | [`./portfolio-2-query-optimisation/`](./portfolio-2-query-optimisation/) | Completed |
+| **Portfolio 3** | Transactions and Concurrency | [`./portfolio-3-transactions-concurrency/`](./portfolio-3-transactions-concurrency/) | Completed |
+| **Portfolio 4** | NoSQL and Advanced Data Models | [`./portfolio-4-nosql/`](./portfolio-4-nosql/) | Completed |
+| **Portfolio 5** | Distributed and Cloud Database Exercise | [`./portfolio-5-distributed-cloud/`](./portfolio-5-distributed-cloud/) | Completed |
+| **LMS Report** | Final Portfolio Summary & Technical Reflection | [`./LMS_Submission_Document_Oval_Pay_Finances.md`](./LMS_Submission_Document_Oval_Pay_Finances.md) | Completed |
 
