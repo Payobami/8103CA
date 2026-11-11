@@ -1,0 +1,15 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE & Editor files
+.vscode/
+.idea/
+
+# Environment files
+.env
+
+# Course brief PDF (keep locally for reference, exclude from portfolio submission repo)
+doc/
+
