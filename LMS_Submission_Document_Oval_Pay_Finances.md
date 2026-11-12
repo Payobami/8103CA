@@ -33,6 +33,8 @@
   * **AML High-Value Outbound Audit:** Adding covering index `idx_tx_status_type_created_covering (status, transaction_type, created_at, wallet_id, amount, fee)` converted a 50,005-row Full Table Scan (`64.32 ms`) into a Covering Index Range Scan (`8.11 ms`, **7.9x faster**).
   * **Latest Transaction per Wallet:** Rewriting a correlated subquery into a partitioned `ROW_NUMBER() OVER (...)` window function reduced execution time from **41.20 ms to 1.95 ms (21.1x faster)**.
 
+![Oval Pay Finances — Query Processing Speed Benchmark](./portfolio-2-query-optimisation/screenshots/query_processing_speed_chart.svg)
+
 ### **Portfolio 3: Transactions and Concurrency**
 * **Implementation:** Built the atomic stored procedure `sp_execute_p2p_transfer` ([`01_atomic_p2p_transfer_commit_rollback.sql`](./portfolio-3-transactions-concurrency/01_atomic_p2p_transfer_commit_rollback.sql)) and multi-session concurrency scripts ([`02_concurrency_race_condition_and_locking.sql`](./portfolio-3-transactions-concurrency/02_concurrency_race_condition_and_locking.sql)).
 * **Concurrency & Deadlock Control:**
@@ -80,3 +82,4 @@ This portfolio reinforced that database performance and correctness depend on ho
 * **AI Tool Used:** Google Antigravity AI Coding Assistant.
 * **What the AI Tool Was Used For:** Brainstorming the Oval Pay Finances fintech domain structure, scaffolding the MySQL 8.0 bulk benchmark stored procedure, formatting Mermaid architecture diagrams, and structuring the portfolio documentation templates.
 * **How the Output Was Reviewed, Corrected, Tested, and Verified:** Every SQL DDL table definition, `CHECK` constraint, composite index, `EXPLAIN ANALYZE` query plan, multi-session `FOR UPDATE` locking script, and MongoDB aggregation pipeline was manually reviewed, customised to the Oval Pay Finances case study, verified for syntactic and logical accuracy against MySQL 8.0 and MongoDB 7.0 specifications, and organised into progressive Git commits.
+

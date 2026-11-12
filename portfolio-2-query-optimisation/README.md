@@ -136,7 +136,23 @@ CREATE INDEX idx_tx_status_type_created_covering
 
 ---
 
-## 4. Performance Benchmark Summary Table
+## 4. Performance Benchmark Summary Table & Query Processing Speed Graph
+
+### **A. Visual Query Processing Speed Graph (Before vs. After Optimisation)**
+
+![Oval Pay Finances — Query Processing Speed Benchmark](./screenshots/query_processing_speed_chart.svg)
+
+```mermaid
+xychart-beta
+    title "Oval Pay Finances — Query Execution Latency: Before vs After Indexing (ms, lower is better)"
+    x-axis ["Q1: Wallet Statement", "Q2: AML Volume Audit", "Q3: Merchant Settlement", "Q4: Latest Wallet Tx"]
+    y-axis "Execution Time (ms)" 0 --> 70
+    bar [2.85, 64.32, 28.40, 41.20]
+    bar [0.09, 8.11, 3.15, 1.95]
+```
+> *Legend: First bar per group = **Before Indexing (ms)** | Second bar per group = **After Composite/Covering Indexing & Query Rewrite (ms)**.*
+
+### **B. Detailed Performance Comparison Table**
 
 | Query | Optimisation Technique Applied | Access Type (Before) | Access Type (After) | Rows Examined (Before) | Rows Examined (After) | Latency Before | Latency After | Speedup |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
