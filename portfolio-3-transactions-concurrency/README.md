@@ -148,3 +148,4 @@ Because every transaction locks the lower `wallet_id` before the higher `wallet_
 | :--- | :--- |
 | [`01_atomic_p2p_transfer_commit_rollback.sql`](./01_atomic_p2p_transfer_commit_rollback.sql) | Stored procedure & test cases demonstrating `START TRANSACTION`, `COMMIT`, `ROLLBACK`, `SAVEPOINT`, and deadlock-free lock ordering. |
 | [`02_concurrency_race_condition_and_locking.sql`](./02_concurrency_race_condition_and_locking.sql) | Multi-session scripts demonstrating Pessimistic Locking (`FOR UPDATE`), Optimistic Locking (`lock_version`), and `performance_schema.data_locks` inspection. |
+

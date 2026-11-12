@@ -119,3 +119,4 @@ SELECT
     lock_status,
     lock_data
 FROM performance_schema.data_locks;
+

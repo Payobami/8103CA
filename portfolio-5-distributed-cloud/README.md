@@ -75,23 +75,19 @@ Because 95% of customer account statement queries and compliance audits filter o
 +----------------+------------------+----------------+
 | PARTITION_NAME | less_than_yyyymm | estimated_rows |
 +----------------+------------------+----------------+
-| p_2026_07      |           202608 |          10758 |
-| p_2026_08      |           202609 |           8928 |
-| p_2026_09      |           202610 |           8640 |
-| p_2026_10      |           202611 |           8928 |
-| p_2026_11      |           202612 |            145 |
+| p_2026_07      | 202608           |          23353 |
+| p_2026_08      | 202609           |           8728 |
+| p_2026_09      | 202610           |           8492 |
+| p_2026_10      | 202611           |           8728 |
+| p_2026_11      | 202612           |            142 |
 | p_future       | MAXVALUE         |              0 |
 +----------------+------------------+----------------+
 ```
 
 #### **Partition Pruning Verification (`EXPLAIN` Output):**
-When querying October 2026 transactions (`WHERE created_at BETWEEN '2026-10-01' AND '2026-10-31'`), MySQL's optimizer prunes all other partitions and scans **only `p_2026_10`**:
+When querying October 2026 transactions (`WHERE created_at BETWEEN '2026-10-01 00:00:00' AND '2026-10-31 23:59:59'`), MySQL's optimizer prunes all other partitions and scans **only `p_2026_10`** using `idx_tx_part_wallet_date`:
 ```text
-+----+-------------+--------------------------+------------+-------+----------------------------+----------------------------+---------+------+------+----------+-----------------------+
-| id | select_type | table                    | partitions | type  | possible_keys              | key                        | key_len | ref  | rows | filtered | Extra                 |
-+----+-------------+--------------------------+------------+-------+----------------------------+----------------------------+---------+------+------+----------+-----------------------+
-|  1 | SIMPLE      | transactions_partitioned | p_2026_10  | range | idx_tx_part_wallet_date    | idx_tx_part_wallet_date    | 14      | NULL |    9 |   100.00 | Using index condition |
-+----+-------------+--------------------------+------------+-------+----------------------------+----------------------------+---------+------+------+----------+-----------------------+
+-> Index range scan on transactions_partitioned using idx_tx_part_wallet_date over (wallet_id = 1 AND status = 'completed' AND '2026-10-31 23:59:59' <= created_at <= '2026-10-01 00:00:00'), with index condition: ((transactions_partitioned.wallet_id = 1) and (transactions_partitioned.`status` = 'completed') and (transactions_partitioned.created_at between '2026-10-01 00:00:00' and '2026-10-31 23:59:59'))  (cost=5.66 rows=12)
 ```
 
 ### **B. Distributed Multi-Node Sharding Design**
@@ -123,3 +119,4 @@ During a network partition ($P$), a distributed data store must choose between *
 | [`docker-compose.replication.yml`](./docker-compose.replication.yml) | Docker Compose setup defining `mysql-primary` (GTID master), `mysql-replica-1` (read-only replica), and `mongodb-telemetry`. |
 | [`01_partitioning_and_sharding_strategy.sql`](./01_partitioning_and_sharding_strategy.sql) | SQL implementation of `transactions_partitioned` (`PARTITION BY RANGE`), partition pruning verification, and GTID replication commands. |
 | [`laravel_read_write_database_config.php`](./laravel_read_write_database_config.php) | Production Laravel database configuration demonstrating Read/Write splitting with `'sticky' => true`. |
+

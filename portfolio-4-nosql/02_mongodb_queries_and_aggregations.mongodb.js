@@ -104,3 +104,4 @@ db.fraud_telemetry_events.aggregate([
     },
     { $sort: { avg_rule_weight: -1 } }
 ]).toArray();
+

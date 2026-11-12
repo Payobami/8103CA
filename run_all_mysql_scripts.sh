@@ -6,18 +6,20 @@
 
 set -e
 
+cd "/Users/apple/8103 CA"
+
 MYSQL_BIN="/usr/local/mysql/bin/mysql"
 if ! command -v "$MYSQL_BIN" &>/dev/null; then
     MYSQL_BIN="mysql"
 fi
 
-echo "============================================================================"
-echo "  Oval Pay Finances (ovalpay_db) — Portfolio SQL Runner & Evidence Generator"
-echo "============================================================================"
-read -r -s -p "Enter your local MySQL root password (press Enter if empty): " MYSQL_PWD_INPUT
-echo ""
-
-export MYSQL_PWD="$MYSQL_PWD_INPUT"
+if [ -n "$1" ]; then
+    export MYSQL_PWD="$1"
+elif [ -z "$MYSQL_PWD" ]; then
+    read -r -s -p "Enter your local MySQL root password: " MYSQL_PWD_INPUT
+    echo ""
+    export MYSQL_PWD="$MYSQL_PWD_INPUT"
+fi
 
 echo "[1/5] Running Portfolio 1: Schema DDL & Initial Seed Data..."
 "$MYSQL_BIN" -u root -t < "portfolio-1-database-design/01_schema_ddl.sql"
@@ -25,7 +27,7 @@ echo "[1/5] Running Portfolio 1: Schema DDL & Initial Seed Data..."
 cat "portfolio-1-database-design/screenshots/p1_mysql_verification_output.txt"
 
 echo ""
-echo "[2/5] Running Portfolio 2: 50,000-Row Benchmark Seeder (takes ~2-4 seconds)..."
+echo "[2/5] Running Portfolio 2: 50,000-Row Benchmark Seeder..."
 "$MYSQL_BIN" -u root -t ovalpay_db < "portfolio-2-query-optimisation/01_bulk_benchmark_seeder.sql" > "portfolio-2-query-optimisation/screenshots/p2_seeder_output.txt"
 cat "portfolio-2-query-optimisation/screenshots/p2_seeder_output.txt"
 

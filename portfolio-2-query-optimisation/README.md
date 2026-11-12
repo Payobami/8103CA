@@ -71,12 +71,12 @@ Calculates total settled transactions, gross value, Oval Pay Finances commission
 
 #### **BEFORE Composite Indexing (Single FK Index on `wallet_id` Only):**
 ```text
--> Limit: 20 row(s)  (cost=18.25 rows=20) (actual time=2.841..2.846 rows=13 loops=1)
-    -> Sort: t.created_at DESC, limit input to 20 row(s) per chunk  (cost=18.25 rows=52) (actual time=2.839..2.842 rows=13 loops=1)
-        -> Filter: ((t.`status` = 'completed') and (t.created_at between '2026-09-01 00:00:00' and '2026-11-01 23:59:59'))
-            -> Index lookup on t using fk_transactions_wallet (wallet_id=1)  (cost=18.25 rows=52) (actual time=0.112..2.790 rows=52 loops=1)
+-> Limit: 20 row(s)  (cost=13.4 rows=20) (actual time=0.153..0.155 rows=20 loops=1)
+    -> Sort: t.created_at DESC, limit input to 20 row(s) per chunk  (cost=13.4 rows=53) (actual time=0.153..0.155 rows=20 loops=1)
+        -> Filter: ((t.`status` = 'completed') and (t.created_at between '2026-09-01 00:00:00' and '2026-11-01 23:59:59'))  (cost=13.4 rows=53) (actual time=0.0319..0.141 rows=20 loops=1)
+            -> Index lookup on t using fk_transactions_wallet (wallet_id = 1)  (cost=13.4 rows=53) (actual time=0.0234..0.111 rows=53 loops=1)
 ```
-* **Bottleneck:** MySQL retrieves all 52 historical rows for `wallet_id = 1` across the table, applies a post-fetch filter on `status` and `created_at`, and performs an in-memory **Sort (`Using filesort`)**.
+* **Bottleneck:** MySQL retrieves all 53 historical rows for `wallet_id = 1` across the table, applies a post-fetch filter on `status` and `created_at`, and performs an in-memory **Sort (`t.created_at DESC`)**.
 
 #### **Optimisation Applied:**
 ```sql
@@ -86,10 +86,10 @@ CREATE INDEX idx_tx_wallet_status_created
 
 #### **AFTER Composite Indexing:**
 ```text
--> Limit: 20 row(s)  (cost=6.11 rows=13) (actual time=0.064..0.089 rows=13 loops=1)
-    -> Index range scan on t using idx_tx_wallet_status_created over (wallet_id = 1 AND status = 'completed' AND '2026-11-01 23:59:59' <= created_at <= '2026-09-01 00:00:00')  (cost=6.11 rows=13) (actual time=0.062..0.085 rows=13 loops=1)
+-> Limit: 20 row(s)  (cost=9.26 rows=20) (actual time=0.0196..0.0509 rows=20 loops=1)
+    -> Index range scan on t using idx_tx_wallet_status_created over (wallet_id = 1 AND status = 'completed' AND '2026-11-01 23:59:59' <= created_at <= '2026-09-01 00:00:00'), with index condition: ((t.wallet_id = 1) and (t.`status` = 'completed') and (t.created_at between '2026-09-01 00:00:00' and '2026-11-01 23:59:59'))  (cost=9.26 rows=20) (actual time=0.0193..0.0499 rows=20 loops=1)
 ```
-* **Why It Improved:** The composite index follows the **Equality → Range/Sort principle** (`wallet_id` equality, `status` equality, `created_at DESC` range & sort). MySQL jumps directly to the matching B-Tree leaf nodes in descending timestamp order, scanning **13 rows instead of 52** and completely eliminating the `Sort` step (`31.9x` speedup).
+* **Why It Improved:** The composite index follows the **Equality → Range/Sort principle** (`wallet_id` equality, `status` equality, `created_at DESC` range & sort). MySQL jumps directly to the matching B-Tree leaf nodes in descending timestamp order, scanning **20 rows instead of 53** and completely eliminating the `Sort` step (`0.155 ms → 0.051 ms`, **3.04x faster**).
 
 ---
 
@@ -97,16 +97,17 @@ CREATE INDEX idx_tx_wallet_status_created
 
 #### **BEFORE Indexing (Full Table Scan on 50,005 Rows):**
 ```text
--> Limit: 15 row(s)  (actual time=64.312..64.318 rows=15 loops=1)
-    -> Sort: total_outbound_amount DESC, limit input to 15 row(s) per chunk  (actual time=64.310..64.313 rows=15 loops=1)
-        -> Filter: (sum(t.amount) > 500000.00)
-            -> Table scan on <temporary>
-                -> Aggregate using temporary table
-                    -> Nested loop inner join  (cost=14820.55 rows=16650) (actual time=0.412..51.890 rows=2498 loops=1)
-                        -> Filter: ((t.transaction_type in ('transfer_out','withdrawal')) and (t.`status` = 'completed') and (t.created_at >= '2026-10-01 00:00:00'))
-                            -> Table scan on t  (cost=5084.25 rows=50005) (actual time=0.088..34.620 rows=2498 loops=1)
+-> Limit: 15 row(s)  (actual time=49.4..49.4 rows=15 loops=1)
+    -> Sort: total_outbound_amount DESC  (actual time=49.4..49.4 rows=15 loops=1)
+        -> Filter: (`sum(t.amount)` > 500000.00)  (actual time=49.3..49.4 rows=300 loops=1)
+            -> Table scan on <temporary>  (actual time=49.3..49.3 rows=301 loops=1)
+                -> Aggregate using temporary table  (actual time=49.3..49.3 rows=301 loops=1)
+                    -> Inner hash join (k.kyc_tier_id = c.kyc_tier_id)  (cost=6466 rows=1383) (actual time=33.9..45.6 rows=2721 loops=1)
+                        ...
+                        -> Filter: ((t.transaction_type in ('transfer_out','withdrawal')) and (t.`status` = 'completed') and (t.created_at >= TIMESTAMP'2026-10-01 00:00:00'))  (cost=5082 rows=1383) (actual time=0.0224..18 rows=2721 loops=1)
+                            -> Table scan on t  (cost=5082 rows=49776) (actual time=0.0203..9.81 rows=50005 loops=1)
 ```
-* **Bottleneck:** Neither `status`, `transaction_type`, nor `created_at` was indexed, forcing InnoDB into a **Full Table Scan (`Table scan on t`, reading all 50,005 clustered index pages)** taking **64.31 ms**.
+* **Bottleneck:** Neither `status`, `transaction_type`, nor `created_at` was indexed, forcing InnoDB into a **Full Table Scan (`Table scan on t`, reading all 50,005 rows)** taking **18.00 ms** on the table scan/filter and **49.40 ms** total.
 
 #### **Optimisation Applied (Covering Index):**
 ```sql
@@ -116,23 +117,32 @@ CREATE INDEX idx_tx_status_type_created_covering
 
 #### **AFTER Covering Index:**
 ```text
--> Limit: 15 row(s)  (actual time=8.104..8.109 rows=15 loops=1)
-    -> Sort: total_outbound_amount DESC, limit input to 15 row(s) per chunk  (actual time=8.102..8.105 rows=15 loops=1)
-        -> Filter: (sum(t.amount) > 500000.00)
-            -> Table scan on <temporary>
-                -> Aggregate using temporary table
-                    -> Nested loop inner join  (cost=1920.40 rows=2498) (actual time=0.145..5.420 rows=2498 loops=1)
-                        -> Filter: ((t.transaction_type in ('transfer_out','withdrawal')) and (t.`status` = 'completed') and (t.created_at >= '2026-10-01 00:00:00'))
-                            -> Covering index range scan on t using idx_tx_status_type_created_covering  (cost=612.10 rows=2498) (actual time=0.051..1.890 rows=2498 loops=1)
+-> Limit: 15 row(s)  (actual time=32.4..32.4 rows=15 loops=1)
+    ...
+    -> Filter: ((t.transaction_type in ('transfer_out','withdrawal')) and (t.`status` = 'completed') and (t.created_at >= TIMESTAMP'2026-10-01 00:00:00'))  (cost=557 rows=2721) (actual time=0.0265..1.49 rows=2721 loops=1)
+        -> Covering index range scan on t using idx_tx_status_type_created_covering over (status = 'completed' AND transaction_type = 'withdrawal' AND '2026-10-01 00:00:00' <= created_at) OR (status = 'completed' AND transaction_type = 'transfer_out' AND '2026-10-01 00:00:00' <= created_at)  (cost=557 rows=2721) (actual time=0.0243..0.582 rows=2721 loops=1)
 ```
-* **Why It Improved:** Because `idx_tx_status_type_created_covering` includes `(wallet_id, amount, fee)` at the end of the key, InnoDB satisfies the entire `transactions` read from the secondary index leaf pages (**Covering Index Scan**, `Using index`) without performing random I/O lookups back to the primary clustered table!
+* **Why It Improved:** Because `idx_tx_status_type_created_covering` includes `(wallet_id, amount, fee)` at the end of the key, InnoDB satisfies the entire `transactions` read from the secondary index leaf pages (**Covering Index Range Scan**, scanning **2,721 rows instead of 50,005**). The ledger scan/filter time dropped from **18.00 ms to 1.49 ms (12.1x faster)**, and total query time dropped from **49.40 ms to 32.40 ms**.
 
 ---
 
 ### **Case C: Query 4 (Correlated Subquery vs. Window Function Rewrite)**
 
-* **Before (`Query 4A`):** A correlated subquery `WHERE t.created_at = (SELECT MAX(t2.created_at) FROM transactions t2 WHERE t2.wallet_id = w.wallet_id ...)` executed a dependent index scan per candidate row (**41.20 ms**).
-* **After (`Query 4B`):** Rewriting into a single-pass CTE with `ROW_NUMBER() OVER (PARTITION BY t.wallet_id ORDER BY t.created_at DESC)` combined with `idx_tx_wallet_status_created` reduced execution time to **1.95 ms** (**95.3% faster**).
+* **Before (`Query 4A` — Correlated Subquery):**
+  ```text
+  -> Nested loop inner join  (cost=893 rows=2522) (actual time=0.259..104 rows=35 loops=1)
+      ...
+      -> Select #2 (subquery in condition; dependent)
+          -> Aggregate: max(t2.created_at)  (cost=16.8 rows=1) (actual time=0.0405..0.0405 rows=1 loops=2505)
+  ```
+  Executed a dependent subquery **2,505 times**, taking **104.00 ms**.
+* **After (`Query 4B` — Window Function Rewrite):**
+  ```text
+  -> Index lookup on ranked_transactions using <auto_key0> (rn = 1)  (cost=0.35..3.52 rows=10.1) (actual time=5.44..5.44 rows=35 loops=1)
+      -> Materialize CTE ranked_transactions  (cost=0..0 rows=0) (actual time=5.43..5.43 rows=1755 loops=1)
+          -> Window aggregate: row_number() OVER (PARTITION BY t.wallet_id ORDER BY t.created_at desc )  (actual time=3.16..4.19 rows=1755 loops=1)
+  ```
+  Rewriting into a single-pass CTE with `ROW_NUMBER() OVER (PARTITION BY t.wallet_id ORDER BY t.created_at DESC)` combined with `idx_tx_wallet_status_created` reduced execution time from **104.00 ms to 5.44 ms (19.1x faster)**.
 
 ---
 
@@ -145,21 +155,21 @@ CREATE INDEX idx_tx_status_type_created_covering
 ```mermaid
 xychart-beta
     title "Oval Pay Finances — Query Execution Latency: Before vs After Indexing (ms, lower is better)"
-    x-axis ["Q1: Wallet Statement", "Q2: AML Volume Audit", "Q3: Merchant Settlement", "Q4: Latest Wallet Tx"]
-    y-axis "Execution Time (ms)" 0 --> 70
-    bar [2.85, 64.32, 28.40, 41.20]
-    bar [0.09, 8.11, 3.15, 1.95]
+    x-axis ["Q1: Wallet Statement", "Q2: AML Ledger Scan", "Q3: Merchant Settlement", "Q4: Latest Wallet Tx"]
+    y-axis "Execution Time (ms)" 0 --> 110
+    bar [0.16, 18.00, 15.10, 104.00]
+    bar [0.05, 1.49, 4.51, 5.44]
 ```
 > *Legend: First bar per group = **Before Indexing (ms)** | Second bar per group = **After Composite/Covering Indexing & Query Rewrite (ms)**.*
 
-### **B. Detailed Performance Comparison Table**
+### **B. Detailed Performance Comparison Table (Live MySQL 8.0 Measurements)**
 
 | Query | Optimisation Technique Applied | Access Type (Before) | Access Type (After) | Rows Examined (Before) | Rows Examined (After) | Latency Before | Latency After | Speedup |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Query 1:** Wallet Statement | Composite Index `(wallet_id, status, created_at DESC)` | `ref` + `filesort` | `range` (No Sort) | 52 | 13 | 2.85 ms | **0.09 ms** | **31.6x faster** |
-| **Query 2:** AML Outbound Audit | Covering Index `(status, transaction_type, created_at, wallet_id, amount, fee)` | `ALL` (Full Table Scan) | `range` (Covering Index) | 50,005 | 2,498 | 64.32 ms | **8.11 ms** | **7.9x faster** |
-| **Query 3:** Merchant Settlement | Covering Index `(merchant_id, status, transaction_type, created_at, amount)` | `ref` (Clustered Lookup) | `range` (Covering Index) | 10,001 | 3,651 | 28.40 ms | **3.15 ms** | **9.0x faster** |
-| **Query 4:** Latest Wallet Tx | Query Rewrite (`ROW_NUMBER() OVER`) + Composite Index | Dependent Subquery | Window Scan on Index | 2,600 | 1,800 | 41.20 ms | **1.95 ms** | **21.1x faster** |
+| **Query 1:** Wallet Statement | Composite Index `(wallet_id, status, created_at DESC)` | `ref` + `filesort` | `range` (No Sort) | 53 | 20 | 0.155 ms | **0.051 ms** | **3.04x faster** |
+| **Query 2:** AML Outbound Audit | Covering Index `(status, transaction_type, created_at, wallet_id, amount, fee)` | `ALL` (Full Table Scan) | `range` (Covering Index) | 50,005 | 2,721 | 49.40 ms *(18.0ms scan)* | **32.40 ms *(1.49ms scan)*** | **12.1x faster scan** |
+| **Query 3:** Merchant Settlement | Covering Index `(merchant_id, status, transaction_type, created_at, amount)` | `ALL` (Full Table Scan) | `ref` (Covering Index) | 50,005 | 5,001 | 15.10 ms | **4.51 ms** | **3.35x faster** |
+| **Query 4:** Latest Wallet Tx | Query Rewrite (`ROW_NUMBER() OVER`) + Composite Index | Dependent Subquery (`2,505 loops`) | Window Scan on Index | 125,500 | 1,755 | 104.00 ms | **5.44 ms** | **19.1x faster** |
 
 ---
 

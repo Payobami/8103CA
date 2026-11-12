@@ -221,11 +221,28 @@ CREATE TABLE wallet_transfers (
         FOREIGN KEY (credit_transaction_id) REFERENCES transactions (transaction_id)
         ON UPDATE CASCADE
         ON DELETE RESTRICT,
-    CONSTRAINT chk_transfers_distinct_wallets CHECK (
-        sender_wallet_id <> receiver_wallet_id
-    ),
     CONSTRAINT chk_transfers_positive_amount CHECK (
         amount > 0.00 AND fee >= 0.00
     )
 ) ENGINE=InnoDB;
+
+-- ============================================================================
+-- 8. TRIGGER: trg_transfers_prevent_self_transfer
+-- Purpose: Enforces sender_wallet_id <> receiver_wallet_id on wallet_transfers
+-- (MySQL 8.0 Error 3823 prohibits CHECK constraints on Foreign Key columns, so
+--  a BEFORE INSERT trigger is the canonical MySQL way to enforce this rule).
+-- ============================================================================
+DELIMITER $$
+
+CREATE TRIGGER trg_transfers_prevent_self_transfer
+BEFORE INSERT ON wallet_transfers
+FOR EACH ROW
+BEGIN
+    IF NEW.sender_wallet_id = NEW.receiver_wallet_id THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Self-transfer error: sender_wallet_id and receiver_wallet_id cannot be identical.';
+    END IF;
+END$$
+
+DELIMITER ;
 

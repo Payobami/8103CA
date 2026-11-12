@@ -219,3 +219,4 @@ COMMIT;
 
 -- Verify Wallet #4 now has 52,000.00 NGN (deposit kept, 2,000 debit rolled back)
 SELECT wallet_id, wallet_number, balance FROM wallets WHERE wallet_id = 4;
+

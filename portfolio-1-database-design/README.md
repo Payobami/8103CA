@@ -9,7 +9,9 @@ To prevent data anomalies, balance discrepancies, or duplicate customer records,
 
 ## 2. Entity-Relationship Diagram (ERD)
 
-> **Note:** In addition to the Mermaid ERD below, see [`./screenshots/er-diagram.png`](./screenshots/er-diagram.png) for the exported Miro / DBDiagram visual schema diagram.
+> **Visual Diagram Evidence:** See [`./screenshots/er-diagram.png`](./screenshots/er-diagram.png), [`./screenshots/ER-Diagram Done with Miro.jpg`](./screenshots/ER-Diagram%20Done%20with%20Miro.jpg), and [`./screenshots/ER-Diagram.pdf`](./screenshots/ER-Diagram.pdf) for the exported Miro ER Diagrams, plus [`./screenshots/p1_mysql_verification_output.txt`](./screenshots/p1_mysql_verification_output.txt) for the live MySQL execution output.
+
+![Oval Pay Finances — Miro ER Diagram](./screenshots/er-diagram.png)
 
 ```mermaid
 erDiagram

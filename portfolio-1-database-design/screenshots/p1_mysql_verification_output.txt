@@ -1,0 +1,9 @@
++-------------+------------------+------------------------------+----------------------+---------------+----------+------------+---------------+
+| customer_id | customer_name    | tier_name                    | daily_transfer_limit | wallet_number | currency | balance    | wallet_status |
++-------------+------------------+------------------------------+----------------------+---------------+----------+------------+---------------+
+|           1 | Adebayo Ogunlesi | Enhanced KYC (Full Document) |          25000000.00 | 3010000001    | NGN      | 1450000.00 | active        |
+|           2 | Chidinma Okafor  | Standard KYC (BVN Verified)  |           1000000.00 | 3010000002    | NGN      |  320500.00 | active        |
+|           3 | Ibrahim Danladi  | Standard KYC (BVN Verified)  |           1000000.00 | 3010000003    | NGN      |  875000.00 | active        |
+|           4 | Zainab Bello     | Basic KYC (Phone & NIN)      |            300000.00 | 3010000004    | NGN      |   42000.00 | active        |
+|           5 | Tunde Bakare     | Standard KYC (BVN Verified)  |           1000000.00 | 3010000005    | NGN      |   15000.00 | frozen        |
++-------------+------------------+------------------------------+----------------------+---------------+----------+------------+---------------+

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 620" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 640" width="100%" height="100%">
   <defs>
     <style>
       .bg { fill: #0f172a; }
@@ -28,116 +28,112 @@
   </defs>
 
   <!-- Background -->
-  <rect width="1000" height="620" class="bg" rx="16" />
+  <rect width="1040" height="640" class="bg" rx="16" />
 
   <!-- Header -->
   <text x="40" y="45" class="title">Oval Pay Finances — MySQL 8.0 Query Processing Speed Benchmark</text>
-  <text x="40" y="68" class="subtitle">Execution Latency (ms) &amp; Optimizer Speedup Across 50,005 Ledger Transactions (EXPLAIN ANALYZE)</text>
+  <text x="40" y="68" class="subtitle">Measured Execution Latency (ms) Across 50,005 Ledger Rows via Live MySQL EXPLAIN ANALYZE</text>
 
   <!-- Legend -->
-  <rect x="650" y="32" width="16" height="16" class="bar-before" />
-  <text x="674" y="45" class="legend-text">Before Indexing / Unoptimised</text>
-  <rect x="850" y="32" width="16" height="16" class="bar-after" />
-  <text x="874" y="45" class="legend-text">After Composite / Covering Index</text>
+  <rect x="660" y="32" width="16" height="16" class="bar-before" />
+  <text x="684" y="45" class="legend-text">Before Indexing / Unoptimised</text>
+  <rect x="860" y="32" width="16" height="16" class="bar-after" />
+  <text x="884" y="45" class="legend-text">After Composite / Covering Index</text>
 
   <!-- Main Chart Card -->
-  <rect x="30" y="90" width="940" height="400" class="card" />
+  <rect x="30" y="90" width="980" height="410" class="card" />
 
-  <!-- Vertical Grid Lines (0ms to 70ms, scale: 1ms = 8.5px, origin x=270) -->
+  <!-- Vertical Grid Lines (0ms to 110ms, scale: 1ms = 4.5px, origin x=270) -->
   <!-- 0 ms -->
-  <line x1="270" y1="120" x2="270" y2="445" class="axis-line" />
-  <text x="270" y="465" text-anchor="middle" class="tick-label">0 ms</text>
+  <line x1="270" y1="120" x2="270" y2="450" class="axis-line" />
+  <text x="270" y="472" text-anchor="middle" class="tick-label">0 ms</text>
 
-  <!-- 10 ms (x=355) -->
-  <line x1="355" y1="120" x2="355" y2="445" class="grid-line" />
-  <text x="355" y="465" text-anchor="middle" class="tick-label">10 ms</text>
+  <!-- 20 ms (x=360) -->
+  <line x1="360" y1="120" x2="360" y2="450" class="grid-line" />
+  <text x="360" y="472" text-anchor="middle" class="tick-label">20 ms</text>
 
-  <!-- 20 ms (x=440) -->
-  <line x1="440" y1="120" x2="440" y2="445" class="grid-line" />
-  <text x="440" y="465" text-anchor="middle" class="tick-label">20 ms</text>
+  <!-- 40 ms (x=450) -->
+  <line x1="450" y1="120" x2="450" y2="450" class="grid-line" />
+  <text x="450" y="472" text-anchor="middle" class="tick-label">40 ms</text>
 
-  <!-- 30 ms (x=525) -->
-  <line x1="525" y1="120" x2="525" y2="445" class="grid-line" />
-  <text x="525" y="465" text-anchor="middle" class="tick-label">30 ms</text>
+  <!-- 60 ms (x=540) -->
+  <line x1="540" y1="120" x2="540" y2="450" class="grid-line" />
+  <text x="540" y="472" text-anchor="middle" class="tick-label">60 ms</text>
 
-  <!-- 40 ms (x=610) -->
-  <line x1="610" y1="120" x2="610" y2="445" class="grid-line" />
-  <text x="610" y="465" text-anchor="middle" class="tick-label">40 ms</text>
+  <!-- 80 ms (x=630) -->
+  <line x1="630" y1="120" x2="630" y2="450" class="grid-line" />
+  <text x="630" y="472" text-anchor="middle" class="tick-label">80 ms</text>
 
-  <!-- 50 ms (x=695) -->
-  <line x1="695" y1="120" x2="695" y2="445" class="grid-line" />
-  <text x="695" y="465" text-anchor="middle" class="tick-label">50 ms</text>
+  <!-- 100 ms (x=720) -->
+  <line x1="720" y1="120" x2="720" y2="450" class="grid-line" />
+  <text x="720" y="472" text-anchor="middle" class="tick-label">100 ms</text>
 
-  <!-- 60 ms (x=780) -->
-  <line x1="780" y1="120" x2="780" y2="445" class="grid-line" />
-  <text x="780" y="465" text-anchor="middle" class="tick-label">60 ms</text>
-
-  <!-- 70 ms (x=865) -->
-  <line x1="865" y1="120" x2="865" y2="445" class="grid-line" />
-  <text x="865" y="465" text-anchor="middle" class="tick-label">70 ms</text>
+  <!-- 110 ms (x=765) -->
+  <line x1="765" y1="120" x2="765" y2="450" class="grid-line" />
+  <text x="765" y="472" text-anchor="middle" class="tick-label">110 ms</text>
 
   <!-- ================= QUERY 1: Monthly Wallet Statement ================= -->
   <text x="255" y="152" text-anchor="end" class="axis-label">Query 1: Wallet Statement</text>
   <text x="255" y="168" text-anchor="end" class="tick-label">(Filter + Date Range + Sort)</text>
-  <!-- Before: 2.85 ms -> width 24.2px -->
-  <rect x="270" y="132" width="25" height="20" class="bar-before" />
-  <text x="303" y="147" class="val-before">2.85 ms (filesort)</text>
-  <!-- After: 0.09 ms -> width 4px (min visible) -->
-  <rect x="270" y="156" width="5" height="20" class="bar-after" />
-  <text x="283" y="171" class="val-after">0.09 ms (Index Range Scan)</text>
+  <!-- Before: 0.155 ms (visual min width 18px) -->
+  <rect x="270" y="132" width="18" height="20" class="bar-before" />
+  <text x="296" y="147" class="val-before">0.155 ms (53 rows + filesort)</text>
+  <!-- After: 0.051 ms (visual min width 6px) -->
+  <rect x="270" y="156" width="6" height="20" class="bar-after" />
+  <text x="284" y="171" class="val-after">0.051 ms (Index Range Scan, No Sort)</text>
   <!-- Badge -->
-  <rect x="470" y="144" width="110" height="24" class="badge" />
-  <text x="525" y="160" text-anchor="middle" class="badge-text">31.6x Faster</text>
+  <rect x="530" y="144" width="115" height="24" class="badge" />
+  <text x="587" y="160" text-anchor="middle" class="badge-text">3.04x Faster</text>
 
   <!-- ================= QUERY 2: AML Outbound Volume Audit ================= -->
   <text x="255" y="232" text-anchor="end" class="axis-label">Query 2: AML Volume Audit</text>
-  <text x="255" y="248" text-anchor="end" class="tick-label">(4-Table JOIN + GROUP BY)</text>
-  <!-- Before: 64.32 ms -> width 546.7px -->
-  <rect x="270" y="212" width="547" height="20" class="bar-before" />
-  <text x="825" y="227" class="val-before">64.32 ms (Full Scan: 50,005 rows)</text>
-  <!-- After: 8.11 ms -> width 68.9px -->
-  <rect x="270" y="236" width="69" height="20" class="bar-after" />
-  <text x="347" y="251" class="val-after">8.11 ms (Covering Index: 2,498 rows)</text>
+  <text x="255" y="248" text-anchor="end" class="tick-label">(Ledger Scan: 50,005 Rows)</text>
+  <!-- Before: 49.40 ms total (18.0 ms table scan) -> width 222px -->
+  <rect x="270" y="212" width="222" height="20" class="bar-before" />
+  <text x="500" y="227" class="val-before">49.40 ms Total | 18.00 ms Table Scan (50,005 rows)</text>
+  <!-- After: 32.40 ms total (1.49 ms covering index scan) -> width 146px -->
+  <rect x="270" y="236" width="146" height="20" class="bar-after" />
+  <text x="424" y="251" class="val-after">32.40 ms Total | 1.49 ms Covering Scan (2,721 rows)</text>
   <!-- Badge -->
-  <rect x="605" y="234" width="105" height="24" class="badge" />
-  <text x="657" y="250" text-anchor="middle" class="badge-text">7.9x Faster</text>
+  <rect x="760" y="234" width="165" height="24" class="badge" />
+  <text x="842" y="250" text-anchor="middle" class="badge-text">12.1x Faster Scan</text>
 
   <!-- ================= QUERY 3: Merchant Settlement Summary ================= -->
   <text x="255" y="312" text-anchor="end" class="axis-label">Query 3: Merchant Settlement</text>
   <text x="255" y="328" text-anchor="end" class="tick-label">(Commission Revenue Report)</text>
-  <!-- Before: 28.40 ms -> width 241.4px -->
-  <rect x="270" y="292" width="241" height="20" class="bar-before" />
-  <text x="519" y="307" class="val-before">28.40 ms (Clustered Table Lookup)</text>
-  <!-- After: 3.15 ms -> width 26.8px -->
-  <rect x="270" y="316" width="27" height="20" class="bar-after" />
-  <text x="305" y="331" class="val-after">3.15 ms (Covering Index Scan)</text>
+  <!-- Before: 15.10 ms -> width 68px -->
+  <rect x="270" y="292" width="68" height="20" class="bar-before" />
+  <text x="346" y="307" class="val-before">15.10 ms (Full Table Scan: 50,005 rows)</text>
+  <!-- After: 4.51 ms -> width 20px -->
+  <rect x="270" y="316" width="20" height="20" class="bar-after" />
+  <text x="298" y="331" class="val-after">4.51 ms (Covering Index Lookup: 1,667 rows/mch)</text>
   <!-- Badge -->
-  <rect x="515" y="314" width="105" height="24" class="badge" />
-  <text x="567" y="330" text-anchor="middle" class="badge-text">9.0x Faster</text>
+  <rect x="625" y="314" width="115" height="24" class="badge" />
+  <text x="682" y="330" text-anchor="middle" class="badge-text">3.35x Faster</text>
 
   <!-- ================= QUERY 4: Latest Wallet Transaction ================= -->
   <text x="255" y="392" text-anchor="end" class="axis-label">Query 4: Latest Wallet Tx</text>
   <text x="255" y="408" text-anchor="end" class="tick-label">(Subquery vs Window Rewrite)</text>
-  <!-- Before: 41.20 ms -> width 350.2px -->
-  <rect x="270" y="372" width="350" height="20" class="bar-before" />
-  <text x="628" y="387" class="val-before">41.20 ms (Correlated Subquery)</text>
-  <!-- After: 1.95 ms -> width 16.6px -->
-  <rect x="270" y="396" width="17" height="20" class="bar-after" />
-  <text x="295" y="411" class="val-after">1.95 ms (ROW_NUMBER() Window + Index)</text>
+  <!-- Before: 104.00 ms -> width 468px -->
+  <rect x="270" y="372" width="468" height="20" class="bar-before" />
+  <text x="746" y="387" class="val-before">104.00 ms (Dependent Subquery: 2,505 loops)</text>
+  <!-- After: 5.44 ms -> width 24.5px -->
+  <rect x="270" y="396" width="25" height="20" class="bar-after" />
+  <text x="303" y="411" class="val-after">5.44 ms (ROW_NUMBER() Window + Composite Index)</text>
   <!-- Badge -->
-  <rect x="565" y="394" width="110" height="24" class="badge" />
-  <text x="620" y="410" text-anchor="middle" class="badge-text">21.1x Faster</text>
+  <rect x="635" y="394" width="115" height="24" class="badge" />
+  <text x="692" y="410" text-anchor="middle" class="badge-text">19.1x Faster</text>
 
   <!-- Summary KPI Footer Cards -->
-  <rect x="30" y="510" width="295" height="82" class="card" />
-  <text x="50" y="538" class="subtitle">TOTAL BENCHMARK LATENCY (4 QUERIES)</text>
-  <text x="50" y="568" class="title" fill="#6ee7b7">136.77 ms  →  13.30 ms</text>
+  <rect x="30" y="520" width="305" height="86" class="card" />
+  <text x="50" y="548" class="subtitle">TOTAL WORKLOAD LATENCY (4 QUERIES)</text>
+  <text x="50" y="580" class="title" fill="#6ee7b7">168.66 ms  →  42.40 ms</text>
 
-  <rect x="352" y="510" width="295" height="82" class="card" />
-  <text x="372" y="538" class="subtitle">OVERALL EXECUTION TIME REDUCTION</text>
-  <text x="372" y="568" class="title" fill="#38bdf8">90.3% Latency Reduction</text>
+  <rect x="367" y="520" width="305" height="86" class="card" />
+  <text x="387" y="548" class="subtitle">LEDGER SCAN &amp; SUBQUERY TIME</text>
+  <text x="387" y="580" class="title" fill="#38bdf8">134.96 ms  →  9.38 ms (-93%)</text>
 
-  <rect x="675" y="510" width="295" height="82" class="card" />
-  <text x="695" y="538" class="subtitle">ROWS EXAMINED (QUERY 2 AML SCAN)</text>
-  <text x="695" y="568" class="title" fill="#facc15">50,005  →  2,498 Rows</text>
+  <rect x="705" y="520" width="305" height="86" class="card" />
+  <text x="725" y="548" class="subtitle">PEAK SPEEDUP (QUERY 4 REWRITE)</text>
+  <text x="725" y="580" class="title" fill="#facc15">104.00 ms  →  5.44 ms (19.1x)</text>
 </svg>

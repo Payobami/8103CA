@@ -27,11 +27,12 @@
 * **Normalisation & Integrity:** Eliminated repeating groups (1NF), partial dependencies (2NF), and transitive dependencies (3NF) by extracting regulatory tier limits into `kyc_tiers` (`customer_id → kyc_tier_id → daily_transfer_limit`) and merchant commission attributes into `merchants`. Domain integrity is enforced at the database engine level via `CHECK (balance >= 0.00)` on `wallets`, `CHECK (sender_wallet_id <> receiver_wallet_id)` on `wallet_transfers`, and `ON DELETE RESTRICT` foreign keys to protect historical financial ledger auditability.
 
 ### **Portfolio 2: Query Processing and Optimisation**
-* **Implementation:** Created a stored procedure benchmark seeder ([`01_bulk_benchmark_seeder.sql`](./portfolio-2-query-optimisation/01_bulk_benchmark_seeder.sql)) that populated **1,000 customers/wallets** and **50,005 ledger transactions**. Evaluated four operational and analytical queries using `EXPLAIN ANALYZE` before and after indexing ([`03_indexes_and_optimisation.sql`](./portfolio-2-query-optimisation/03_indexes_and_optimisation.sql)).
+* **Implementation:** Created a stored procedure benchmark seeder ([`01_bulk_benchmark_seeder.sql`](./portfolio-2-query-optimisation/01_bulk_benchmark_seeder.sql)) that populated **1,000 customers/wallets** and **50,005 ledger transactions**. Evaluated four operational and analytical queries using live MySQL 8.0 `EXPLAIN ANALYZE` before and after indexing ([`03_indexes_and_optimisation.sql`](./portfolio-2-query-optimisation/03_indexes_and_optimisation.sql)).
 * **Key Results:**
-  * **Monthly Wallet Statement Query:** Adding composite index `idx_tx_wallet_status_created (wallet_id, status, created_at DESC)` eliminated the `filesort` operation and reduced latency from **2.85 ms to 0.09 ms (31.6x faster)**.
-  * **AML High-Value Outbound Audit:** Adding covering index `idx_tx_status_type_created_covering (status, transaction_type, created_at, wallet_id, amount, fee)` converted a 50,005-row Full Table Scan (`64.32 ms`) into a Covering Index Range Scan (`8.11 ms`, **7.9x faster**).
-  * **Latest Transaction per Wallet:** Rewriting a correlated subquery into a partitioned `ROW_NUMBER() OVER (...)` window function reduced execution time from **41.20 ms to 1.95 ms (21.1x faster)**.
+  * **Monthly Wallet Statement Query:** Adding composite index `idx_tx_wallet_status_created (wallet_id, status, created_at DESC)` eliminated the `filesort` operation and reduced latency from **0.155 ms to 0.051 ms (3.04x faster)**.
+  * **AML High-Value Outbound Audit:** Adding covering index `idx_tx_status_type_created_covering (status, transaction_type, created_at, wallet_id, amount, fee)` converted a 50,005-row Full Table Scan (`18.00 ms` scan / `49.40 ms` total) into a Covering Index Range Scan of 2,721 rows (`1.49 ms` scan / `32.40 ms` total, **12.1x faster table scan**).
+  * **Merchant Settlement Summary:** Adding covering index `idx_tx_merchant_settlement_covering` reduced query execution from **15.10 ms to 4.51 ms (3.35x faster)**.
+  * **Latest Transaction per Wallet:** Rewriting a correlated subquery (`2,505` dependent loops) into a partitioned `ROW_NUMBER() OVER (...)` window function reduced execution time from **104.00 ms to 5.44 ms (19.1x faster)**.
 
 ![Oval Pay Finances — Query Processing Speed Benchmark](./portfolio-2-query-optimisation/screenshots/query_processing_speed_chart.svg)
 
