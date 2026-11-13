@@ -164,6 +164,22 @@ xychart-beta
 
 ### **B. Detailed Performance Comparison Table (Live MySQL 8.0 Measurements)**
 
+### **A. Visual Query Processing Speed Graph (Before vs. After Optimisation)**
+
+![Oval Pay Finances — Query Processing Speed Benchmark](./screenshots/query_processing_speed_chart.svg)
+
+```mermaid
+xychart-beta
+    title "Oval Pay Finances — Query Execution Latency: Before vs After Indexing (ms, lower is better)"
+    x-axis ["Q1: Wallet Statement", "Q2: AML Ledger Scan", "Q3: Merchant Settlement", "Q4: Latest Wallet Tx"]
+    y-axis "Execution Time (ms)" 0 --> 110
+    bar [0.16, 18.00, 15.10, 104.00]
+    bar [0.05, 1.49, 4.51, 5.44]
+```
+> *Legend: First bar per group = **Before Indexing (ms)** | Second bar per group = **After Composite/Covering Indexing & Query Rewrite (ms)**.*
+
+### **B. Detailed Performance Comparison Table (Live MySQL 8.0 Measurements)**
+
 | Query | Optimisation Technique Applied | Access Type (Before) | Access Type (After) | Rows Examined (Before) | Rows Examined (After) | Latency Before | Latency After | Speedup |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Query 1:** Wallet Statement | Composite Index `(wallet_id, status, created_at DESC)` | `ref` + `filesort` | `range` (No Sort) | 53 | 20 | 0.155 ms | **0.051 ms** | **3.04x faster** |
