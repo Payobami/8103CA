@@ -1,0 +1,72 @@
+version: "3.9"
+
+# ============================================================================
+# MIT 8103: Advanced Database Systems
+# Portfolio 5: Distributed and Cloud Database Exercise
+# Case Study: Oval Pay Finances
+# Purpose: Multi-node Primary-Replica MySQL 8.0 Cluster (GTID Replication)
+#          + MongoDB 7.0 Telemetry Node
+# ============================================================================
+
+services:
+  mysql-primary:
+    image: mysql:8.0
+    container_name: ovalpay-mysql-primary
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ovalpay_root_secret
+      MYSQL_DATABASE: ovalpay_db
+    ports:
+      - "3306:3306"
+    command: >
+      --server-id=1
+      --log-bin=mysql-bin
+      --binlog-format=ROW
+      --gtid-mode=ON
+      --enforce-gtid-consistency=ON
+      --sync-binlog=1
+      --innodb-flush-log-at-trx-commit=1
+    volumes:
+      - ../portfolio-1-database-design/01_schema_ddl.sql:/docker-entrypoint-initdb.d/01_schema_ddl.sql:ro
+      - ../portfolio-1-database-design/02_seed_sample_data.sql:/docker-entrypoint-initdb.d/02_seed_sample_data.sql:ro
+    networks:
+      - ovalpay_net
+
+  mysql-replica-1:
+    image: mysql:8.0
+    container_name: ovalpay-mysql-replica-1
+    restart: unless-stopped
+    depends_on:
+      - mysql-primary
+    environment:
+      MYSQL_ROOT_PASSWORD: ovalpay_root_secret
+      MYSQL_DATABASE: ovalpay_db
+    ports:
+      - "3307:3306"
+    command: >
+      --server-id=2
+      --relay-log=mysql-relay-bin
+      --log-bin=mysql-bin
+      --binlog-format=ROW
+      --gtid-mode=ON
+      --enforce-gtid-consistency=ON
+      --read-only=ON
+      --super-read-only=ON
+    networks:
+      - ovalpay_net
+
+  mongodb-telemetry:
+    image: mongo:7.0
+    container_name: ovalpay-mongodb-telemetry
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: ovalpay_nosql
+    networks:
+      - ovalpay_net
+
+networks:
+  ovalpay_net:
+    driver: bridge
+

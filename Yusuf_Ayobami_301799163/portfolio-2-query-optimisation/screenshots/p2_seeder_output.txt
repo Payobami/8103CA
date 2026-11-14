@@ -1,0 +1,14 @@
++-----------------------------+---------+----------+----------+
+| Table                       | Op      | Msg_type | Msg_text |
++-----------------------------+---------+----------+----------+
+| ovalpay_db.customers        | analyze | status   | OK       |
+| ovalpay_db.wallets          | analyze | status   | OK       |
+| ovalpay_db.merchants        | analyze | status   | OK       |
+| ovalpay_db.transactions     | analyze | status   | OK       |
+| ovalpay_db.wallet_transfers | analyze | status   | OK       |
++-----------------------------+---------+----------+----------+
++-----------------+---------------+--------------------+
+| total_customers | total_wallets | total_transactions |
++-----------------+---------------+--------------------+
+|            1000 |          1000 |              50005 |
++-----------------+---------------+--------------------+

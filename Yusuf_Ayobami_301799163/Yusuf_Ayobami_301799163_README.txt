@@ -200,8 +200,14 @@ AI Use Declaration (Section 11 Compliance):
 ================================================================================
 
 Folder Name: Yusuf_Ayobami_301799163
+├── portfolio-1-database-design/          (ERD, Relational Schema, Constraints & 3NF Normalisation)
+├── portfolio-2-query-optimisation/       (Complex SQL, EXPLAIN ANALYZE Plans & Speed Benchmark Graph)
+├── portfolio-3-transactions-concurrency/ (ACID Transactions, Rollbacks, Locking & Concurrency Control)
+├── portfolio-4-nosql/                    (MongoDB Document Model, Scripts & Suitability Analysis)
+├── portfolio-5-distributed-cloud/        (Replication, Sharding, CAP Theorem & Cloud/Docker Setup)
 ├── Yusuf_Ayobami_301799163_README.txt
 ├── Yusuf_Ayobami_301799163_Portfolio_Report.pdf
 ├── Yusuf_Ayobami_301799163_ER_Diagram.png
 └── Yusuf_Ayobami_301799163_ER_Diagram.pdf
 ================================================================================
+
